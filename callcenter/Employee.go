@@ -136,17 +136,24 @@ func (e *Employee) dumpEmployee() {
 func (e *Employee) Occupy(occ chan<- Employee, pcc chan PhoneCall, spc chan<- PhoneCall, cpc chan<- PhoneCall) {
 
 	pc := <-pcc
-	if 1 == rand.Intn(2) {
-		pc.HandleBy = e.Id
-		spc <- pc
-		fmt.Printf("%s excute %s\n", e.Id, pc.Id)
-	} else {
-		pcc <- pc
-		fmt.Printf("%s escalate %s\n", e.Id, pc.Id)
-	}
 	factor := time.Duration(rand.Intn(5))
 	//factor := time.Duration(0)
 	time.Sleep(factor * time.Second)
+	if 1 == rand.Intn(2) {
+		pc.HandleBy = e.Id
+		spc <- pc
+		fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
+		//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
+	} else {
+		if e.Priority == PM {
+			fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
+			//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
+		} else {
+			cpc <- pc
+			fmt.Printf("P%d: pause %s s for %s escalate %s\n", e.Priority, factor, e.Id, pc.Id)
+			//fmt.Printf("P%d: %s escalate %s\n", e.Priority, e.Id, pc.Id)
+		}
+	}
 
 	occ <- *e
 }

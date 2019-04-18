@@ -25,7 +25,7 @@ var SPCQ []PhoneCall
 
 type PhoneCall struct {
 	Id       uuid.UUID
-	IsIdle   bool
+	Priority Priority
 	HandleBy uuid.UUID
 }
 
@@ -37,7 +37,7 @@ func GeneratePhoneCall(num int) error {
 
 	for i := 0; i < num; i++ {
 		pcid := uuid.New()
-		PCQ = append(PCQ, PhoneCall{pcid, true, uuid.Nil})
+		PCQ = append(PCQ, PhoneCall{pcid, Priority(1), uuid.Nil})
 	}
 	fmt.Printf("IPC(%d) is generated.\n", num)
 	return nil
@@ -49,7 +49,7 @@ func GeneratePhoneCall(num int) error {
 func GeneratePhoneCallAutomatically() {
 	for i := 0; i < MAX_PC; i++ {
 		pcid := uuid.New()
-		PCQ = append(PCQ, PhoneCall{pcid, true, uuid.Nil})
+		PCQ = append(PCQ, PhoneCall{pcid, Priority(1), uuid.Nil})
 	}
 	fmt.Println("Max number of IPC is generated.")
 }
@@ -67,19 +67,8 @@ func DumpAllPhoneCall() {
 	for i, v := range PCQ {
 		fmt.Printf("[%d, %v]\n", i, v)
 	}
-	TitleDump("SPC")
-	TitleDump("CPC")
 }
 
-func Solved(pc PhoneCall) {
-}
-
-// Search next avaliable rank to handle PC
-func Escalate(pc PhoneCall) {
-
-}
-
-// Remove IPC to CPC
-func Cancel() {
-
+func DumpCanNotSolved(c PhoneCall) {
+	fmt.Printf("Even PM can not solve PC[%s]\n", c)
 }

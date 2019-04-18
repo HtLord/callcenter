@@ -6,7 +6,7 @@ package callcenter
 // 2. the number of IPC(MAX_IPC, more details in ./PhoneCall)
 
 const (
-	MAX_FR  int = 10
+	MAX_FR  int = 3
 	MAX_TL  int = 1
 	MAX_PM  int = 1
 	MAX_TCC int = 15
