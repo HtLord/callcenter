@@ -19,9 +19,9 @@ import (
 //		1. If some solved the PC which will be remove from IPC
 //		2. Then append to SPC.
 
-var IPC []PhoneCall
-var CPC []PhoneCall
-var SPC []PhoneCall
+var PCQ []PhoneCall
+var CPCQ []PhoneCall
+var SPCQ []PhoneCall
 
 type PhoneCall struct {
 	Id       uuid.UUID
@@ -31,13 +31,13 @@ type PhoneCall struct {
 
 // Generate number of PC into IPC
 func GeneratePhoneCall(num int) error {
-	if len(IPC) > MAX_IPC || (len(IPC)+num) > MAX_IPC {
+	if len(PCQ) > MAX_PC || (len(PCQ)+num) > MAX_PC {
 		return errors.New("There has no enough lines for asking number of phone call")
 	}
 
 	for i := 0; i < num; i++ {
 		pcid := uuid.New()
-		IPC = append(IPC, PhoneCall{pcid, true, uuid.Nil})
+		PCQ = append(PCQ, PhoneCall{pcid, true, uuid.Nil})
 	}
 	fmt.Printf("IPC(%d) is generated.\n", num)
 	return nil
@@ -46,20 +46,15 @@ func GeneratePhoneCall(num int) error {
 // Generate MAX IPC it will be using when
 // 1. Testing and fulfill the IPC
 // 2. All IPC is consumed and want to be refill the IPC
-func GenerateMaxPhoneCallOnce() error {
-	if len(IPC) > MAX_IPC {
-		return errors.New("There has no enough lines for asking number of phone call")
-	}
-
-	for i := 0; i < MAX_IPC; i++ {
+func GeneratePhoneCallAutomatically() {
+	for i := 0; i < MAX_PC; i++ {
 		pcid := uuid.New()
-		IPC = append(IPC, PhoneCall{pcid, true, uuid.Nil})
+		PCQ = append(PCQ, PhoneCall{pcid, true, uuid.Nil})
 	}
 	fmt.Println("Max number of IPC is generated.")
-	return nil
 }
 
-func LoadPToChannel(es []PhoneCall, buf int) chan PhoneCall {
+func LoadPCToChannel(es []PhoneCall, buf int) chan PhoneCall {
 	c := make(chan PhoneCall, buf)
 	for _, e := range es {
 		c <- e
@@ -68,12 +63,12 @@ func LoadPToChannel(es []PhoneCall, buf int) chan PhoneCall {
 }
 
 func DumpAllPhoneCall() {
-	fmt.Printf("IPC\n")
-	for i, v := range IPC {
+	TitleDump("IPC")
+	for i, v := range PCQ {
 		fmt.Printf("[%d, %v]\n", i, v)
 	}
-	fmt.Printf("CPC[%s]\n", len(CPC))
-	fmt.Printf("SPC[%s]\n", len(SPC))
+	TitleDump("SPC")
+	TitleDump("CPC")
 }
 
 func Solved(pc PhoneCall) {

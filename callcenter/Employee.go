@@ -53,6 +53,22 @@ func GenerateEmployeesByFormula(formula []Priority) error {
 	return nil
 }
 
+func GenerateEmployeesAutomatically() {
+	for i := 0; i < MAX_FR; i++ {
+		FRQ = append(FRQ, Employee{uuid.New(), true, Fresher})
+	}
+
+	for i := 0; i < MAX_TL; i++ {
+		TLQ = append(TLQ, Employee{uuid.New(), true, TL})
+	}
+
+	for i := 0; i < MAX_PM; i++ {
+		PMQ = append(PMQ, Employee{uuid.New(), true, PM})
+	}
+	fmt.Println("Max number of freasher, team leader, and product manager is generated.")
+
+}
+
 // Make sure formula will match the follow by rules:
 // 1. The max number of Freasher
 // 2. The max number of TL
@@ -99,15 +115,15 @@ func LoadEToChannel(es []Employee, buf int) chan Employee {
 }
 
 func DumpAllEmployee() {
-	fmt.Printf("Fresher:\n")
+	TitleDump("Fresher")
 	for _, v := range FRQ {
 		v.dumpEmployee()
 	}
-	fmt.Printf("Technical Leader:\n")
+	TitleDump("Technical Leader")
 	for _, v := range TLQ {
 		v.dumpEmployee()
 	}
-	fmt.Printf("Product Manager:\n")
+	TitleDump("Product Manager")
 	for _, v := range PMQ {
 		v.dumpEmployee()
 	}
@@ -119,17 +135,18 @@ func (e *Employee) dumpEmployee() {
 
 func (e *Employee) Occupy(occ chan<- Employee, pcc chan PhoneCall, spc chan<- PhoneCall, cpc chan<- PhoneCall) {
 
-	factor := time.Duration(rand.Intn(5))
-	//factor := time.Duration(0)
-	time.Sleep(factor * time.Second)
 	pc := <-pcc
 	if 1 == rand.Intn(2) {
 		pc.HandleBy = e.Id
 		spc <- pc
-		fmt.Printf("pause %d s for %s excute %s\n", factor, e.Id, pc.Id)
+		fmt.Printf("%s excute %s\n", e.Id, pc.Id)
 	} else {
 		pcc <- pc
-		fmt.Printf("pause %d s for %s escalate %s\n", factor, e.Id, pc.Id)
+		fmt.Printf("%s escalate %s\n", e.Id, pc.Id)
 	}
+	factor := time.Duration(rand.Intn(5))
+	//factor := time.Duration(0)
+	time.Sleep(factor * time.Second)
+
 	occ <- *e
 }

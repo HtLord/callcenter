@@ -2,6 +2,7 @@ package main
 
 import (
 	"callcenter/callcenter"
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -19,11 +20,21 @@ func main() {
 		callcenter.Priority(1),
 		callcenter.Priority(1),
 		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
+		callcenter.Priority(1),
 		callcenter.Priority(2),
 		callcenter.Priority(3),
 	}
 	err := callcenter.GenerateEmployeesByFormula(f)
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 	err = callcenter.GenerateMaxPhoneCallOnce()
@@ -33,10 +44,10 @@ func main() {
 
 	callcenter.DumpAllEmployee()
 	callcenter.DumpAllPhoneCall()
-	frc := callcenter.LoadEToChannel(callcenter.FRQ, 5)
+	frc := callcenter.LoadEToChannel(callcenter.FRQ, callcenter.MAX_FR)
 	//tlc := callcenter.LoadToChannel(callcenter.TLQ, 1)
 	//pmc := callcenter.LoadToChannel(callcenter.PMQ, 1)
-	pcc := callcenter.LoadPToChannel(callcenter.IPC, 10)
+	pcc := callcenter.LoadPToChannel(callcenter.IPC, callcenter.MAX_IPC)
 
 	spc := make(chan callcenter.PhoneCall, 30)
 	cpc := make(chan callcenter.PhoneCall, 30)

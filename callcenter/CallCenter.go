@@ -9,8 +9,8 @@ const (
 	MAX_FR  int = 10
 	MAX_TL  int = 1
 	MAX_PM  int = 1
-	MAX_TCC int = 5
-	MAX_IPC int = 10
+	MAX_TCC int = 15
+	MAX_PC  int = 10
 )
 
 type CallCenter struct {
