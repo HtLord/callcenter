@@ -19,17 +19,14 @@ import (
 //		1. If some solved the PC which will be remove from IPC
 //		2. Then append to SPC.
 
-const (
-	MAX_IPC int = 10
-)
-
 var IPC []PhoneCall
 var CPC []PhoneCall
 var SPC []PhoneCall
 
 type PhoneCall struct {
-	Id     uuid.UUID
-	IsIdle bool
+	Id       uuid.UUID
+	IsIdle   bool
+	HandleBy uuid.UUID
 }
 
 // Generate number of PC into IPC
@@ -39,7 +36,8 @@ func GeneratePhoneCall(num int) error {
 	}
 
 	for i := 0; i < num; i++ {
-		IPC = append(IPC, PhoneCall{uuid.New()})
+		pcid := uuid.New()
+		IPC = append(IPC, PhoneCall{pcid, true, uuid.Nil})
 	}
 	fmt.Printf("IPC(%d) is generated.\n", num)
 	return nil
@@ -54,23 +52,36 @@ func GenerateMaxPhoneCallOnce() error {
 	}
 
 	for i := 0; i < MAX_IPC; i++ {
-		IPC = append(IPC, PhoneCall{uuid.New()})
+		pcid := uuid.New()
+		IPC = append(IPC, PhoneCall{pcid, true, uuid.Nil})
 	}
 	fmt.Println("Max number of IPC is generated.")
 	return nil
 }
 
-func DisplayStatus() {
-	fmt.Println("IPC[]")
+func LoadPToChannel(es []PhoneCall, buf int) chan PhoneCall {
+	c := make(chan PhoneCall, buf)
+	for _, e := range es {
+		c <- e
+	}
+	return c
 }
 
-func Solved() bool {
-	return true
+func DumpAllPhoneCall() {
+	fmt.Printf("IPC\n")
+	for i, v := range IPC {
+		fmt.Printf("[%d, %v]\n", i, v)
+	}
+	fmt.Printf("CPC[%s]\n", len(CPC))
+	fmt.Printf("SPC[%s]\n", len(SPC))
+}
+
+func Solved(pc PhoneCall) {
 }
 
 // Search next avaliable rank to handle PC
-func Escalate() error {
-	return nil
+func Escalate(pc PhoneCall) {
+
 }
 
 // Remove IPC to CPC
