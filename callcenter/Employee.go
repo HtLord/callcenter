@@ -99,8 +99,8 @@ func ValidateFormula(formula []Priority) error {
 	if pmc > MAX_PM {
 		return errors.New("Enter more than max(" + string(MAX_PM) + ") PM")
 	}
-	if fc+tlc+pmc > MAX_TCC {
-		return errors.New("Enter more than max(" + string(MAX_TCC) + ") number of total call center cap")
+	if fc+tlc+pmc > MAX_PM+MAX_TL+MAX_PM {
+		return errors.New("Enter more than max(" + string(MAX_PM+MAX_TL+MAX_PM) + ") number of total call center cap")
 	}
 
 	return nil
@@ -115,25 +115,42 @@ func LoadEToChannel(es []Employee, buf int) chan Employee {
 }
 
 func DumpAllEmployee() {
-	TitleDump("Fresher")
+	DumpTitle("Fresher")
 	for _, v := range FRQ {
 		v.dumpEmployee()
 	}
-	TitleDump("Technical Leader")
+	DumpTitle("Technical Leader")
 	for _, v := range TLQ {
 		v.dumpEmployee()
 	}
-	TitleDump("Product Manager")
+	DumpTitle("Product Manager")
 	for _, v := range PMQ {
 		v.dumpEmployee()
 	}
 }
 
+// Dump E Id and Priority to console
 func (e *Employee) dumpEmployee() {
 	fmt.Printf("[Id: %s, Priority: %v]\n", e.Id, e.Priority)
 }
 
-func (e *Employee) Occupy(occ chan<- Employee, pcc chan PhoneCall, spc chan<- PhoneCall, cpc chan<- PhoneCall) {
+// Take a PC from occ then the employee(who call TakePC function) will pull off occ and start solve
+// the PC by random secs(0-4) and rtd(roll the dice) to decide how long solve time is. If the emp-
+// loyee can solve the problem then push PC to spc, else push PC to cpc. Finally, push the employee
+// back to occ. !!!CAUTION PM SOLVE PC ANYWAY!!!
+//
+// Details about args:
+// 1. occ: A channel of employee that can be a channel of Fresher, TL, PM , or other defined role.
+//			Used when employee execute phone call and is free, then push back to channel(occ).
+//			TL;DR: a queue hold specific employee is free.
+// 2. pcc: A phone call channel. Pop first phone call to deal, if the employee who call Occupy
+// 3. spc: A phone call channel for collect solved PCs
+// 4. cpc: A phone call channel as next priority channel(escalate). if current employee can not solve
+//			the PC then push it to cpc for escalate.
+//
+// Extra:
+//  	Remove push pc to cpc after Print. Because it may let next thread executed and print before current print.
+func (e *Employee) TakePC(occ chan<- Employee, pcc chan PhoneCall, spc chan<- PhoneCall, cpc chan<- PhoneCall) {
 
 	pc := <-pcc
 	factor := time.Duration(rand.Intn(5))
@@ -141,17 +158,18 @@ func (e *Employee) Occupy(occ chan<- Employee, pcc chan PhoneCall, spc chan<- Ph
 	time.Sleep(factor * time.Second)
 	if 1 == rand.Intn(2) {
 		pc.HandleBy = e.Id
-		spc <- pc
 		fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
 		//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
+		spc <- pc
 	} else {
 		if e.Priority == PM {
 			fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
 			//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
+			spc <- pc
 		} else {
-			cpc <- pc
 			fmt.Printf("P%d: pause %s s for %s escalate %s\n", e.Priority, factor, e.Id, pc.Id)
 			//fmt.Printf("P%d: %s escalate %s\n", e.Priority, e.Id, pc.Id)
+			cpc <- pc
 		}
 	}
 

@@ -63,9 +63,9 @@ func LoadPCToChannel(es []PhoneCall, buf int) chan PhoneCall {
 }
 
 func DumpAllPhoneCall() {
-	TitleDump("IPC")
+	DumpTitle("IPC")
 	for i, v := range PCQ {
-		fmt.Printf("[%d, %v]\n", i, v)
+		fmt.Printf("[%d, %v]\n", i+1, v)
 	}
 }
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"callcenter/callcenter"
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -13,36 +12,11 @@ var tlc chan callcenter.Employee
 var pmc chan callcenter.Employee
 
 func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
 	tc1_GEAD()
 	tc2_GPCAD()
 	tc3_LETC()
 	tc4_LPCTC()
-
-	spc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
-	tlpcc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
-	pmpcc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
-	cpc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
-
-	callcenter.TitleDump("Result")
-	for {
-		select {
-		case fr := <-frc:
-			go fr.Occupy(frc, pcc, spc, tlpcc)
-		case tl := <-tlc:
-			go tl.Occupy(tlc, tlpcc, spc, pmpcc)
-		case pm := <-pmc:
-			go pm.Occupy(pmc, pmpcc, spc, cpc)
-		default:
-		}
-
-		//tl := <-tlc
-		//pm := <-pmc
-
-		//go tl.Occupy(tlc, tlpcc, spc, pmpcc)
-		//go pm.Occupy(pmc, pmpcc, spc, cpc)
-	}
-
+	tc5_MT()
 }
 
 // Test case 1: Generate employees(Es) automatically and dump it
@@ -69,19 +43,25 @@ func tc4_LPCTC() {
 	pcc = callcenter.LoadPCToChannel(callcenter.PCQ, callcenter.MAX_PC)
 }
 
-func tc5_MT(
-	frc chan callcenter.Employee,
-	tlc chan callcenter.Employee,
-	pmc chan callcenter.Employee) {
+func tc5_MT() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	spc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
+	tlpcc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
+	pmpcc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
+	cpc := make(chan callcenter.PhoneCall, callcenter.MAX_PC)
+
+	callcenter.DumpTitle("Result")
+
 	for {
 		select {
-		case <-frc:
-			fmt.Println("fr")
-		case <-tlc:
-			fmt.Println("tlc")
-		case <-pmc:
-			fmt.Println("pmc")
-
+		case fr := <-frc:
+			go fr.TakePC(frc, pcc, spc, tlpcc)
+		case tl := <-tlc:
+			go tl.TakePC(tlc, tlpcc, spc, pmpcc)
+		case pm := <-pmc:
+			go pm.TakePC(pmc, pmpcc, spc, cpc)
+		default:
 		}
 	}
 }

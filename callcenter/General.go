@@ -2,6 +2,6 @@ package callcenter
 
 import "fmt"
 
-func TitleDump(title string) {
+func DumpTitle(title string) {
 	fmt.Println("---------" + title + "---------")
 }
