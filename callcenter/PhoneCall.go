@@ -7,7 +7,7 @@ import (
 )
 
 // For convenient, we will call PhoneCall as PC.
-// There will be IPC, CPC, SPC to handle PCs and will explain it
+// There will be PCQ, CPCQ, SPCQ to handle PCs and will explain it
 // follow by.
 // IPC(Incoming phone call) Rules:
 // 		1.Any phone call will be append to IPC first and wait to be solve.
@@ -54,6 +54,7 @@ func GeneratePhoneCallAutomatically() {
 	fmt.Println("Max number of IPC is generated.")
 }
 
+// Return a channel of PhoneCall for single PC channel usually called pcc
 func LoadPCToChannel(es []PhoneCall, buf int) chan PhoneCall {
 	c := make(chan PhoneCall, buf)
 	for _, e := range es {
@@ -62,6 +63,7 @@ func LoadPCToChannel(es []PhoneCall, buf int) chan PhoneCall {
 	return c
 }
 
+// Dump PC info to console
 func DumpAllPhoneCall() {
 	DumpTitle("IPC")
 	for i, v := range PCQ {
@@ -69,6 +71,7 @@ func DumpAllPhoneCall() {
 	}
 }
 
-func DumpCanNotSolved(c PhoneCall) {
-	fmt.Printf("Even PM can not solve PC[%s]\n", c)
+// While E can not solve the PC then rise the priority of PC.
+func (pc *PhoneCall) escalate() {
+	pc.Priority = pc.Priority + 1
 }
