@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"callcenter/callcenter"
@@ -12,31 +12,27 @@ var tlc chan callcenter.Employee
 var pmc chan callcenter.Employee
 var ec chan callcenter.Employee
 
-func main() {
-	tc8()
-}
-
 // Test case 1: Generate employees(Es) automatically and dump it
-func tc1() {
+func TC1() {
 	callcenter.GenerateEmployeesAutomatically()
 	callcenter.DumpAllEmployee()
 }
 
 // Test case 2: Generate phone calls(PCs) automatically and dump it
-func tc2() {
+func TC2() {
 	callcenter.GeneratePhoneCallAutomatically()
 	callcenter.DumpAllPhoneCall()
 }
 
 // Test case 3: Load Es and return result as a buffered channel
-func tc3() {
+func TC3() {
 	frc = callcenter.LoadEToChannel(callcenter.FRQ, callcenter.MAX_FR)
 	tlc = callcenter.LoadEToChannel(callcenter.TLQ, callcenter.MAX_TL)
 	pmc = callcenter.LoadEToChannel(callcenter.PMQ, callcenter.MAX_PM)
 }
 
 // Test case 4: Load PCs and return result as a buffered channel
-func tc4() {
+func TC4() {
 	pcc = callcenter.LoadPCToChannel(callcenter.PCQ, callcenter.MAX_PC)
 }
 
@@ -45,7 +41,7 @@ func tc4() {
 // pcc and test taking phone call process in multi-thread.
 //
 // Comment: It will run and then holt. But not all pcc are solved.
-func tc5() {
+func TC5() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	callcenter.GeneratePhoneCallAutomatically()
@@ -88,7 +84,7 @@ func tc5() {
 // Test case 6: A prototype version of non-stop consumer. Generate pcc which
 // single chan and employees which single chan. Then start consume PC from
 // pcc and test taking phone call process in multi-thread.
-func tc6() {
+func TC6() {
 	//Random seed
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -115,7 +111,7 @@ func tc6() {
 }
 
 // Test case 7: A non-stop consumer. But using the method from call center
-func tc7() {
+func TC7() {
 	//Random seed
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -135,7 +131,7 @@ func tc7() {
 }
 
 // Test case 8: A stoppable consumer. using the method from call center
-func tc8() {
+func TC8() {
 	//Random seed
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -149,6 +145,10 @@ func tc8() {
 	callcenter.LoadE2C(callcenter.FRQ, ec)
 	callcenter.LoadE2C(callcenter.TLQ, ec)
 	callcenter.LoadE2C(callcenter.PMQ, ec)
+
+	//Dump E, PC
+	callcenter.DumpAllEmployee()
+	callcenter.DumpAllPhoneCall()
 
 	//Run call center version of non-stop Single E channel
 	callcenter.StoppableReceiverSingleLayer(pcc, ec)

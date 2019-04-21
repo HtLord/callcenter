@@ -9,7 +9,7 @@ import (
 // Config Call Center
 // 1. the number of Employee(MAX_FR, MAX_TL, MAX_PM)
 // 2. the number of IPC(MAX_PC, more details in ./PhoneCall)
-const (
+var (
 	MAX_FR int = 3
 	MAX_TL int = 1
 	MAX_PM int = 1
@@ -100,4 +100,11 @@ func StoppableReceiverSingleLayer(pcc chan PhoneCall, ec chan Employee) {
 			break
 		}
 	}
+}
+
+func DumpConfig() {
+	fmt.Printf("max fr = %d\n", MAX_FR)
+	fmt.Printf("max tl = %d\n", MAX_TL)
+	fmt.Printf("max pm = %d\n", MAX_PM)
+	fmt.Printf("max pc = %d\n", MAX_PC)
 }
