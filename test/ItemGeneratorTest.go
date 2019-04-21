@@ -13,7 +13,7 @@ var pmc chan callcenter.Employee
 var ec chan callcenter.Employee
 
 func main() {
-	tc7()
+	tc8()
 }
 
 // Test case 1: Generate employees(Es) automatically and dump it
@@ -131,5 +131,25 @@ func tc7() {
 	callcenter.LoadE2C(callcenter.PMQ, ec)
 
 	//Run call center version of non-stop Single E channel
-	callcenter.ReceiverSingleLayer(pcc, ec)
+	callcenter.NonStopReceiverSingleLayer(pcc, ec)
+}
+
+// Test case 8: A stoppable consumer. using the method from call center
+func tc8() {
+	//Random seed
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	//Generate PC
+	callcenter.GeneratePhoneCallAutomatically()
+	pcc = callcenter.LoadPCToChannel(callcenter.PCQ, callcenter.MAX_PC)
+
+	//Generate Single E channel
+	callcenter.GenerateEmployeesAutomatically()
+	ec = make(chan callcenter.Employee, callcenter.MAX_FR+callcenter.MAX_TL+callcenter.MAX_PM)
+	callcenter.LoadE2C(callcenter.FRQ, ec)
+	callcenter.LoadE2C(callcenter.TLQ, ec)
+	callcenter.LoadE2C(callcenter.PMQ, ec)
+
+	//Run call center version of non-stop Single E channel
+	callcenter.StoppableReceiverSingleLayer(pcc, ec)
 }

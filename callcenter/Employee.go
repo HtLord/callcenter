@@ -208,7 +208,6 @@ func (e *Employee) SingleChanTake(occ chan<- Employee, pcc chan PhoneCall) {
 		pc.HandleBy = e.Id
 		fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
 		//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
-
 	} else {
 		if e.Priority == PM {
 			fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
@@ -222,4 +221,46 @@ func (e *Employee) SingleChanTake(occ chan<- Employee, pcc chan PhoneCall) {
 	}
 
 	occ <- *e
+}
+
+// Take a PC from occ then the employee(who call TakePC function) will pull off pcc. If the PC's priority
+// fit the employee's then start and solve it. The PC by random secs(0-4) and rtd(roll the dice) to
+// decide how long solve time is. If the employee can solve the problem then push print to console, else
+// push PC to cpc. Finally, push the employee back to occ. !!!CAUTION PM SOLVE PC ANYWAY!!!
+//
+func (e *Employee) SingleChanTakeR(occ chan<- Employee, pcc chan PhoneCall) bool {
+	pc := <-pcc
+
+	if pc.Priority != e.Priority {
+		pcc <- pc
+		occ <- *e
+		return false
+	}
+
+	factor := time.Duration(rand.Intn(5))
+	//factor := time.Duration(0)
+	time.Sleep(factor * time.Second)
+
+	//make sure it will be execute while all other express has been executed
+	//then return function
+	defer func() { occ <- *e }()
+
+	if 1 == rand.Intn(2) {
+		pc.HandleBy = e.Id
+		fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
+		//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
+		return true
+	} else {
+		if e.Priority == PM {
+			fmt.Printf("P%d: pause %s s for %s solve %s\n", e.Priority, factor, e.Id, pc.Id)
+			//fmt.Printf("P%d: %s solve %s\n", e.Priority, e.Id, pc.Id)
+			return true
+		} else {
+			pc.escalate()
+			fmt.Printf("P%d: pause %s s for %s escalate %s\n", e.Priority, factor, e.Id, pc.Id)
+			//fmt.Printf("P%d: %s escalate %s\n", e.Priority, e.Id, pc.Id)
+			pcc <- pc
+			return false
+		}
+	}
 }

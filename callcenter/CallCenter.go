@@ -10,10 +10,10 @@ import (
 // 1. the number of Employee(MAX_FR, MAX_TL, MAX_PM)
 // 2. the number of IPC(MAX_PC, more details in ./PhoneCall)
 const (
-	MAX_FR int = 5
+	MAX_FR int = 3
 	MAX_TL int = 1
 	MAX_PM int = 1
-	MAX_PC int = 20
+	MAX_PC int = 10
 )
 
 // Just define but not use yet
@@ -60,7 +60,8 @@ func Receiver3Layer(pcc chan PhoneCall, ec ...chan Employee) {
 // A non-stop consumer. Generate pcc which single chan and employees which
 // single chan. Then start consume PC from pcc and test taking phone call
 // process in multi-thread.
-func ReceiverSingleLayer(pcc chan PhoneCall, ec chan Employee) {
+// TL;DR: Consume PCs(mean while pcc) it will always consume PCs from pcc.
+func NonStopReceiverSingleLayer(pcc chan PhoneCall, ec chan Employee) {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	DumpTitle("Result")
@@ -70,6 +71,33 @@ func ReceiverSingleLayer(pcc chan PhoneCall, ec chan Employee) {
 			go e.SingleChanTake(ec, pcc)
 		default:
 
+		}
+	}
+}
+
+// A stoppable consumer. Generate pcc which single chan and employees which
+// single chan. Then start consume PC from pcc and test taking phone call
+// process in multi-thread.
+// TL;DR: Consume PCs(mean while pcc) while all PCs are solve return.
+func StoppableReceiverSingleLayer(pcc chan PhoneCall, ec chan Employee) {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	c := 0
+	DumpTitle("Result")
+	for {
+		select {
+		case e := <-ec:
+			go func() {
+				r := e.SingleChanTakeR(ec, pcc)
+				if r {
+					c++
+				}
+			}()
+		default:
+
+		}
+		if c == MAX_PC {
+			break
 		}
 	}
 }
